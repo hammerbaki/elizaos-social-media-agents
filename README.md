@@ -1,4 +1,4 @@
-# Eliza
+# eliza-social-media-agents
 
 ## Edit the character files
 
