@@ -1,2 +1,2 @@
-# social-media-marketing-eliza
+# eliza-social-media-agents
 TBD
