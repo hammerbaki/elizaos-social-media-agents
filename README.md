@@ -32,7 +32,7 @@ cp .env.example .env
 DISCORD_APPLICATION_ID="discord-application-id"
 DISCORD_API_TOKEN="discord-api-token"
 ...
-OPENROUTER_API_KEY="sk-xx-xx-xxx"
+OPENROUTER_API_KEY="your-openrouter-api-key-here"
 ...
 TWITTER_USERNAME="username"
 TWITTER_PASSWORD="password"
@@ -56,7 +56,7 @@ Note: this requires node to be at least version 22 when you install packages and
 services:
     eliza:
         environment:
-            - OPENROUTER_API_KEY=blahdeeblahblahblah
+            - OPENROUTER_API_KEY=your-openrouter-api-key-here
 ```
 
 #### Run the image
@@ -80,7 +80,7 @@ docker buildx build --platform linux/amd64 -t eliza-starter:v1 --load .
 services:
     eliza:
         environment:
-            - OPENROUTER_API_KEY=blahdeeblahblahblah
+            - OPENROUTER_API_KEY=your-openrouter-api-key-here
 ```
 
 #### Run the image

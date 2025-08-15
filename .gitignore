@@ -18,6 +18,7 @@ db.sqlite
 **/*.key
 **/*.pem
 **/*.p12
+env.example
 
 # Character files with API keys (backup before anonymizing)
 characters/*.json.bak

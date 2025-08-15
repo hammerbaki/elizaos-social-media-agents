@@ -20,8 +20,8 @@
   "imageVisionModelProvider": "openai",
   "settings": {
     "secrets": {
-      "OPENROUTER_API_KEY": "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",
-      "OPENAI_API_KEY": "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",
+      "OPENROUTER_API_KEY": "",
+      "OPENAI_API_KEY": "",
       "LARGE_OPENROUTER_MODEL": "anthropic/claude-3.5-sonnet-20240620",
       "SMALL_OPENROUTER_MODEL": "google/gemini-flash-1.5",
       "OPENAI_MODEL": "gpt-4o-mini"
