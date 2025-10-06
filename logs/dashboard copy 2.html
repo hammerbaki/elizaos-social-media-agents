@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agents Performance Hub</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 1.1em; margin-top: 0; margin-bottom: 20px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 2em; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; margin-top: 5px; }
+        #charts { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); 
+            gap: 20px; 
+        }
+        #charts > div { 
+            margin: 0; 
+            min-height: 400px; 
+        }
+        .refresh-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .refresh-btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Agents Performance Hub</h1>
+        <p class="subtitle">Twitter • Discord • Telegram</p>
+        <button class="refresh-btn" onclick="loadData()">Refresh Data</button>
+        <div class="stats" id="stats"></div>
+        <div id="charts">
+            <div id="responseTimeChart"></div>
+            <div id="platformChart"></div>
+            <div id="timelineChart"></div>
+            <div id="boxplotChart"></div>
+            <div id="heatmapChart"></div>
+            <div id="scatterChart"></div>
+        </div>
+    </div>
+
+    <script>
+    function loadData() {
+        fetch('all_platforms_performance.csv')
+            .then(response => response.text())
+            .then(csvText => {
+                Papa.parse(csvText, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: function(results) {
+                        updateDashboard(results.data);
+                    }
+                });
+            });
+    }
+
+    function updateDashboard(data) {
+        // Remove empty rows
+        data = data.filter(row => row.timestamp);
+        
+        // Calculate statistics
+        const stats = {
+            total: data.length,
+            avgResponseTime: data.reduce((acc, row) => acc + (row.response_time_ms || 0), 0) / data.length,
+            platforms: {}
+        };
+        
+        // Group by platform
+        data.forEach(row => {
+            if (!stats.platforms[row.platform]) {
+                stats.platforms[row.platform] = { count: 0, totalTime: 0 };
+            }
+            stats.platforms[row.platform].count++;
+            stats.platforms[row.platform].totalTime += row.response_time_ms || 0;
+        });
+        
+        // Update stats cards - Twitter, Discord, Telegram 순서로 변경
+        document.getElementById('stats').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${stats.total.toLocaleString()}</div>
+                <div class="stat-label">Total Interactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.avgResponseTime.toFixed(2)}ms</div>
+                <div class="stat-label">Avg Response Time</div>
+            </div>
+            ${['twitter', 'discord', 'telegram', 'system']
+                .filter(platform => stats.platforms[platform])
+                .map(platform => {
+                    const data = stats.platforms[platform];
+                    return `
+                        <div class="stat-card">
+                            <div class="stat-value">${data.count.toLocaleString()}</div>
+                            <div class="stat-label">${platform.toUpperCase()}</div>
+                        </div>
+                    `;
+                }).join('')}
+        `;
+        
+        // Response time distribution
+        const responseTimeData = [{
+            x: data.map(row => row.response_time_ms),
+            type: 'histogram',
+            name: 'Response Time Distribution',
+            xbins: { size: 5 }
+        }];
+        
+        Plotly.newPlot('responseTimeChart', responseTimeData, {
+            title: 'Response Time Distribution',
+            xaxis: { title: 'Response Time (ms)' },
+            yaxis: { title: 'Count' }
+        });
+        
+        // Platform pie chart - Twitter, Discord, Telegram 순서로 변경
+        const orderedPlatforms = ['twitter', 'discord', 'telegram', 'system']
+            .filter(platform => stats.platforms[platform]);
+            
+        const platformData = [{
+            values: orderedPlatforms.map(platform => stats.platforms[platform].count),
+            labels: orderedPlatforms,
+            type: 'pie',
+            sort: false  // 자동 정렬 비활성화
+        }];
+        
+        Plotly.newPlot('platformChart', platformData, {
+            title: 'Interactions by Platform'
+        });
+        
+        // Timeline chart - Twitter, Discord, Telegram 순서로 변경
+        const timelineData = ['twitter', 'discord', 'telegram', 'system']
+            .filter(platform => stats.platforms[platform])
+            .map(platform => ({
+            x: data.filter(row => row.platform === platform).map(row => row.timestamp),
+            y: data.filter(row => row.platform === platform).map(row => row.response_time_ms),
+            mode: 'markers',
+            type: 'scatter',
+            name: platform
+        }));
+        
+        Plotly.newPlot('timelineChart', timelineData, {
+            title: 'Response Time Over Time',
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Response Time (ms)' }
+        });
+
+// 기존 Timeline chart 코드 뒤에 추가
+
+// 1. 플랫폼별 응답시간 BoxPlot
+const boxplotData = ['twitter', 'discord', 'telegram'].map(platform => ({
+    y: data.filter(row => row.platform === platform)
+           .map(row => row.response_time_ms),
+    type: 'box',
+    name: platform,
+    boxpoints: 'outliers'
+}));
+
+Plotly.newPlot('boxplotChart', boxplotData, {
+    title: 'Response Time Distribution by Platform',
+    yaxis: { title: 'Response Time (ms)' }
+});
+
+// 2. 시간대별 활동 히트맵
+const hourlyData = {};
+data.forEach(row => {
+    const date = new Date(row.timestamp);
+    const hour = date.getHours();
+    const day = date.getDay();
+    const key = `${day}-${hour}`;
+    hourlyData[key] = (hourlyData[key] || 0) + 1;
+});
+
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
+const heatmapZ = [];
+
+for (let hour = 0; hour < 24; hour++) {
+    const row = [];
+    for (let day = 0; day < 7; day++) {
+        row.push(hourlyData[`${day}-${hour}`] || 0);
+    }
+    heatmapZ.push(row);
+}
+
+const heatmapData = [{
+    z: heatmapZ,
+    x: days,
+    y: hours,
+    type: 'heatmap',
+    colorscale: 'Viridis'
+}];
+
+Plotly.newPlot('heatmapChart', heatmapData, {
+    title: 'Activity Heatmap (Hour vs Day)',
+    xaxis: { title: 'Day of Week' },
+    yaxis: { title: 'Hour of Day' }
+});
+
+// 3. 메시지 길이 vs 응답시간 산점도
+const scatterData = [{
+    x: data.map(row => row.message_length),
+    y: data.map(row => row.response_time_ms),
+    mode: 'markers',
+    type: 'scatter',
+    text: data.map(row => row.platform),
+    marker: {
+        color: data.map(row => {
+            const colors = {
+                'twitter': '#1DA1F2',
+                'discord': '#7289DA',
+                'telegram': '#0088cc',
+                'system': '#888888'
+            };
+            return colors[row.platform] || '#000000';
+        }),
+        size: 8
+    }
+}];
+
+Plotly.newPlot('scatterChart', scatterData, {
+    title: 'Message Length vs Response Time',
+    xaxis: { title: 'Message Length (characters)' },
+    yaxis: { title: 'Response Time (ms)' }
+});
+}
+    // Load data on page load
+    loadData();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

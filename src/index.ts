@@ -23,7 +23,11 @@ import {
   parseArguments,
 } from "./config/index.ts";
 import { autoLog } from "./logging/simple-auto-logger.ts";
+// import { injectPerformanceTracking } from "./logging/enhanced-performance-logger.ts";
 import { initializeDatabase } from "./database/index.ts";
+// import { fixEmptyEmbedding } from "./patches/minimal-embedding-fix.ts";
+// import { fixUnicodePreprocess } from "./patches/unicode-preprocess-fix.ts";
+// 패치 제거됨 - simple-message-filter.ts로 대체 예정
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,7 +76,13 @@ export function createAgent(
   // 2. 로깅 활성화
   autoLog(runtime);
 
-  // 3. runtime 반환
+  // 3. 빈 임베딩 문제 해결
+  // fixEmptyEmbedding(runtime);
+
+  // 4. 한글/유니코드 전처리 문제 해결
+  // fixUnicodePreprocess();
+
+  // 5.runtime 반환
   return runtime;
 }
 
@@ -135,6 +145,7 @@ const checkPortAvailable = (port: number): Promise<boolean> => {
 };
 
 const startAgents = async () => {
+  
   const directClient = new DirectClient();
   let serverPort = parseInt(settings.SERVER_PORT || "3000");
   const args = parseArguments();

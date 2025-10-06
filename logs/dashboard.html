@@ -78,8 +78,7 @@
     const platformColors = {
         'twitter': '#1f77b4',    // 파란색
         'discord': '#ff7f0e',    // 주황색  
-        'telegram': '#2ca02c',   // 초록색
-        'system': '#d62728'      // 빨간색
+        'telegram': '#2ca02c'    // 초록색
     };
 
     function loadData() {
@@ -97,8 +96,8 @@
     }
 
     function updateDashboard(data) {
-        // Remove empty rows
-        data = data.filter(row => row.timestamp);
+        // Remove empty rows and system platform data
+        data = data.filter(row => row.timestamp && row.platform !== 'system');
         
         // Calculate statistics
         const stats = {
@@ -124,9 +123,9 @@
             </div>
             <div class="stat-card">
                 <div class="stat-value">${stats.avgResponseTime.toFixed(2)}ms</div>
-                <div class="stat-label">Avg Response Time</div>
+                <div class="stat-label">Avg Storage Time</div>
             </div>
-            ${['twitter', 'discord', 'telegram', 'system']
+            ${['twitter', 'discord', 'telegram']
                 .filter(platform => stats.platforms[platform])
                 .map(platform => {
                     const data = stats.platforms[platform];
@@ -140,7 +139,7 @@
         `;
         
         // 1. Platform pie chart (단독)
-        const orderedPlatforms = ['twitter', 'discord', 'telegram', 'system']
+        const orderedPlatforms = ['twitter', 'discord', 'telegram']
             .filter(platform => stats.platforms[platform]);
             
         const platformData = [{
@@ -150,7 +149,10 @@
             sort: false,
             marker: {
                 colors: orderedPlatforms.map(p => platformColors[p])
-            }
+            },
+            textinfo: 'percent',
+            texttemplate: '%{percent:.1%}',
+            hovertemplate: '%{label}<br>%{percent:.1%}<br>%{value} interactions<extra></extra>'
         }];
         
         Plotly.newPlot('platformChart', platformData, {
@@ -175,14 +177,14 @@
         }));
         
         Plotly.newPlot('timelineChart', timelineData, {
-            title: 'Response Time Over Time',
+            title: 'Storage Time Over Time',
             xaxis: { 
                 title: 'Date',
                 type: 'date',
                 rangeslider: { visible: true }
             },
             yaxis: { 
-                title: 'Response Time (ms)',
+                title: 'Storage Time (ms)',
                 range: [0, 250]
             },
             height: 500,
@@ -193,14 +195,14 @@
         const responseTimeData = [{
             x: data.map(row => row.response_time_ms),
             type: 'histogram',
-            name: 'Response Time Distribution',
+            name: 'StorageTime Distribution',
             xbins: { size: 5 },
             marker: { color: '#007bff' }
         }];
         
         Plotly.newPlot('responseTimeChart', responseTimeData, {
-            title: 'Response Time Distribution',
-            xaxis: { title: 'Response Time (ms)', range: [0, 200] },
+            title: 'Storage Time Distribution',
+            xaxis: { title: 'Storage Time (ms)', range: [0, 200] },
             yaxis: { title: 'Count' },
             width: 600,
             height: 400
@@ -222,9 +224,9 @@
         }));
 
         Plotly.newPlot('violinChart', violinData, {
-            title: 'Response Time Distribution Density by Platform',
+            title: 'Storage Time Distribution Density by Platform',
             yaxis: { 
-                title: 'Response Time (ms)',
+                title: 'Storage Time (ms)',
                 range: [0, 250]
             },
             width: 600,
@@ -250,13 +252,13 @@
         });
 
         Plotly.newPlot('scatterChart', scatterData, {
-            title: 'Message Length vs Response Time by Platform',
+            title: 'Message Length vs Storage Time by Platform',
             xaxis: { 
                 title: 'Message Length (characters)',
                 range: [0, 3500]
             },
             yaxis: { 
-                title: 'Response Time (ms)',
+                title: 'Storage Time (ms)',
                 range: [0, 250]
             },
             legend: {
@@ -322,13 +324,13 @@
         });
 
         Plotly.newPlot('trendChart', trendData, {
-            title: 'Response Time Trend Lines by Platform',
+            title: 'Storage Time Trend Lines by Platform',
             xaxis: { 
                 title: 'Message Length (characters)',
                 range: [0, 3500]
             },
             yaxis: { 
-                title: 'Response Time (ms)',
+                title: 'Storage Time (ms)',
                 range: [0, 250]
             },
             width: 600,

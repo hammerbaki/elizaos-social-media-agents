@@ -4,7 +4,7 @@ module.exports = {
     {
       name: "agile-thought-leader",
       script: "node",
-      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_agilethoughtleader.v4.json",
+      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_agilethoughtleader.v5R.json",
       cwd: "/Users/jj/eliza-starter",
       max_memory_restart: "1000M",
       autorestart: true,
@@ -19,7 +19,7 @@ module.exports = {
     {
       name: "community-mentor",
       script: "node",
-      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_communitymentor.json",
+      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_communitymentor.v2R.json",
       cwd: "/Users/jj/eliza-starter",
       max_memory_restart: "1000M",
       autorestart: true,
@@ -34,7 +34,7 @@ module.exports = {
     {
       name: "information-concierge",
       script: "node",
-      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_informationconcierge.json",
+      args: "--loader ts-node/esm src/index.ts --character=characters/ceo_informationconcierge.v2R.json",
       cwd: "/Users/jj/eliza-starter",
       max_memory_restart: "1000M",
       autorestart: true,
