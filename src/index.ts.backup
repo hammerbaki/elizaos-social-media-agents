@@ -22,7 +22,6 @@ import {
   loadCharacters,
   parseArguments,
 } from "./config/index.ts";
-import { autoLog } from "./logging/simple-auto-logger.ts";
 import { initializeDatabase } from "./database/index.ts";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,8 +49,7 @@ export function createAgent(
 
   nodePlugin ??= createNodePlugin();
 
-  // 1. runtime 변수에 먼저 저장
-  const runtime = new AgentRuntime({
+  return new AgentRuntime({
     databaseAdapter: db,
     token,
     modelProvider: character.modelProvider,
@@ -68,12 +66,6 @@ export function createAgent(
     managers: [],
     cacheManager: cache,
   });
-
-  // 2. 로깅 활성화
-  autoLog(runtime);
-
-  // 3. runtime 반환
-  return runtime;
 }
 
 async function startAgent(character: Character, directClient: DirectClient) {

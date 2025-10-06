@@ -3,9 +3,28 @@ dist
 !index.ts
 !character.ts
 .env
+.env.local
+.env.*.local
 node_modules
 dist/
 
+# Database
 db.sqlite
+
+# Logs and data files
+*.log
+logs/*.csv
+content_cache/
+
+# OS and IDE
+.DS_Store
 .idea
 .tee-cloud
+
+# Backup files
+*.backup
+*.bak
+*.bak*
+
+# Embedded repositories (should use submodules instead)
+characters/characters_example/
